@@ -26,6 +26,7 @@ func (h *Handler) RegisterRoutes(mux *http.ServeMux) {
 	mux.HandleFunc("GET /todos", h.listTodos)
 	mux.HandleFunc("GET /todos/{id}", h.getTodo)
 	mux.HandleFunc("PATCH /todos/{id}", h.updateTodo)
+	mux.HandleFunc("DELETE /todos/{id}", h.deleteTodo)
 }
 
 func (h *Handler) createTodo(w http.ResponseWriter, r *http.Request) {
@@ -162,7 +163,7 @@ func (h *Handler) updateTodo(w http.ResponseWriter, r *http.Request) {
 }
 
 func (h *Handler) deleteTodo(w http.ResponseWriter, r *http.Request) {
-	id, err := strconv.ParseInt(r.PathValue("id"), 0, 64)
+	id, err := strconv.ParseInt(r.PathValue("id"), 10, 64)
 
 	if err != nil {
 		server.Failure(w, server.ErrResourceID)

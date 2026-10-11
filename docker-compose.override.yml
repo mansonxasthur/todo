@@ -5,6 +5,9 @@ services:
     build:
       context: .
       dockerfile: Dockerfile.dev
+    environment:
+      # .git is bind-mounted with a different owner, so VCS stamping fails
+      GOFLAGS: -buildvcs=false
     volumes:
       - .:/app
       - go_mod_cache:/go/pkg/mod

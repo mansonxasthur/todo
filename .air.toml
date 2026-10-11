@@ -1,0 +1,17 @@
+root = "."
+tmp_dir = "tmp"
+
+[build]
+  cmd = "go build -o ./tmp/main ./cmd/todo"
+  bin = "./tmp/main"
+  include_ext = ["go", "mod", "sql"]
+  exclude_dir = ["tmp", "vendor"]
+  # bind mounts on some hosts don't deliver inotify events reliably
+  poll = true
+  poll_interval = 500
+  delay = 200
+  stop_on_error = true
+  log = "build-errors.log"
+
+[log]
+  time = false

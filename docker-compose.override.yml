@@ -1,0 +1,13 @@
+# Applied automatically by `docker compose up`: dev mode with live reload.
+# For a production-style run: docker compose -f docker-compose.yml up --build
+services:
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile.dev
+    volumes:
+      - .:/app
+      - go_mod_cache:/go/pkg/mod
+
+volumes:
+  go_mod_cache:

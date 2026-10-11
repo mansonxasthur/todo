@@ -6,8 +6,10 @@ import (
 )
 
 type Config struct {
-	Port        string
-	DatabaseURL string
+	Port            string
+	DatabaseURL     string
+	OTLPEndpoint    string
+	OTELServiceName string
 }
 
 func Load() (Config, error) {
@@ -17,8 +19,10 @@ func Load() (Config, error) {
 	}
 
 	return Config{
-		Port:        getEnv("PORT", "8080"),
-		DatabaseURL: dbURL,
+		Port:            getEnv("PORT", "8080"),
+		DatabaseURL:     dbURL,
+		OTLPEndpoint:    getEnv("OTEL_EXPORTER_OTLP_ENDPOINT", ""),
+		OTELServiceName: getEnv("OTEL_SERVICE_NAME", "todo"),
 	}, nil
 }
 

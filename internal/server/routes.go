@@ -2,6 +2,8 @@ package server
 
 import (
 	"net/http"
+
+	"go.opentelemetry.io/contrib/instrumentation/net/http/otelhttp"
 )
 
 func (s *Server) routes() http.Handler {
@@ -12,7 +14,7 @@ func (s *Server) routes() http.Handler {
 	for _, h := range s.handlers {
 		h.RegisterRoutes(mux)
 	}
-	return s.logRequests(mux)
+	return otelhttp.NewHandler(s.logRequests(mux), "http.server")
 }
 
 func (s *Server) home(w http.ResponseWriter, r *http.Request) {

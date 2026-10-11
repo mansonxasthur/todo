@@ -69,7 +69,12 @@ func serve(t *testing.T, repo todo.Repo, method, path, body string) *httptest.Re
 	t.Helper()
 
 	mux := http.NewServeMux()
-	todo.NewHandler(repo, slog.New(slog.NewTextHandler(io.Discard, nil))).RegisterRoutes(mux)
+	handler, err := todo.NewHandler(repo, slog.New(slog.NewTextHandler(io.Discard, nil)))
+	if err != nil {
+		t.Fatalf("server: error initiating handler[%s]", err)
+	}
+
+	handler.RegisterRoutes(mux)
 
 	req := httptest.NewRequest(method, path, strings.NewReader(body))
 	rec := httptest.NewRecorder()

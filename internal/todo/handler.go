@@ -3,6 +3,7 @@ package todo
 import (
 	"encoding/json"
 	"errors"
+	"fmt"
 	"log/slog"
 	"net/http"
 	"strconv"
@@ -13,12 +14,18 @@ import (
 )
 
 type Handler struct {
-	repo Repo
-	log  *slog.Logger
+	repo    Repo
+	log     *slog.Logger
+	metrics metrics
 }
 
-func NewHandler(repo Repo, log *slog.Logger) *Handler {
-	return &Handler{repo: repo, log: log}
+func NewHandler(repo Repo, log *slog.Logger) (*Handler, error) {
+	m, err := newMetrics()
+	if err != nil {
+		return nil, fmt.Errorf("creating todo metrics: %w", err)
+	}
+
+	return &Handler{repo: repo, log: log, metrics: m}, nil
 }
 
 func (h *Handler) RegisterRoutes(mux *http.ServeMux) {
@@ -56,11 +63,12 @@ func (h *Handler) createTodo(w http.ResponseWriter, r *http.Request) {
 	todo, err = h.repo.Create(r.Context(), title)
 
 	if err != nil {
-		h.log.Error("creating todo", "error", err)
+		h.log.ErrorContext(r.Context(), "creating todo", "error", err)
 		server.Failure(w, server.ErrInternal)
 		return
 	}
 
+	h.metrics.created.Add(r.Context(), 1)
 	server.Success(w, todo, http.StatusCreated)
 }
 
@@ -68,7 +76,7 @@ func (h *Handler) listTodos(w http.ResponseWriter, r *http.Request) {
 	todos, err := h.repo.List(r.Context())
 
 	if err != nil {
-		h.log.Error("listing todos", "error", err)
+		h.log.ErrorContext(r.Context(), "listing todos", "error", err)
 		server.Failure(w, server.ErrInternal)
 		return
 	}
@@ -85,7 +93,7 @@ func (h *Handler) getTodo(w http.ResponseWriter, r *http.Request) {
 	id, err := strconv.ParseInt(r.PathValue("id"), 10, 64)
 
 	if err != nil {
-		h.log.Error("converting resource id", "error", err)
+		h.log.ErrorContext(r.Context(), "converting resource id", "error", err)
 		server.Failure(w, server.ErrResourceID)
 		return
 	}
@@ -97,7 +105,7 @@ func (h *Handler) getTodo(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 
-		h.log.Error("getting todo by id", "error", err)
+		h.log.ErrorContext(r.Context(), "getting todo by id", "error", err)
 		server.Failure(w, server.ErrInternal)
 		return
 	}
@@ -154,9 +162,13 @@ func (h *Handler) updateTodo(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 
-		h.log.Error("updating todo", "error", err)
+		h.log.ErrorContext(r.Context(), "updating todo", "error", err)
 		server.Failure(w, server.ErrInternal)
 		return
+	}
+
+	if req.Done != nil && *req.Done {
+		h.metrics.completed.Add(r.Context(), 1)
 	}
 
 	server.Success(w, t, http.StatusOK)

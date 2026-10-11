@@ -22,7 +22,7 @@ func (s *Server) logRequests(next http.Handler) http.Handler {
 
 		next.ServeHTTP(rec, r)
 
-		s.log.Info("request",
+		s.log.InfoContext(r.Context(), "request",
 			"method", r.Method,
 			"path", r.URL.Path,
 			"status", rec.status,

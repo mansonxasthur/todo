@@ -1,5 +1,4 @@
 .git
 .idea
 .env
-go.sum
 tmp

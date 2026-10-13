@@ -1,4 +1,4 @@
-.PHONY: check test vet fmt-check up down logs migrate-create obs-up obs-down obs-logs
+.PHONY: check test vet lint fmt-check up down logs migrate-create obs-up obs-down obs-logs
 
 .DEFAULT_GOAL := check
 
@@ -9,7 +9,7 @@ OBS_COMPOSE = docker compose \
 	-f docker-compose.observability.yml
 
 # Everything to run before committing. Stops at the first failing step.
-check: fmt-check vet test
+check: fmt-check vet lint test
 
 # The postgres tests use testcontainers, so Docker must be running.
 test:
@@ -17,6 +17,10 @@ test:
 
 vet:
 	go vet ./...
+
+# Config in .golangci.yml. Install: go install github.com/golangci/golangci-lint/v2/cmd/golangci-lint@latest
+lint:
+	golangci-lint run ./...
 
 # gofmt -l exits 0 even when it lists files, so fail on any output.
 fmt-check:

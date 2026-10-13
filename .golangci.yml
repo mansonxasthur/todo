@@ -1,0 +1,15 @@
+version: "2"
+
+# A short, deliberate set. Add linters one at a time as the code earns them.
+linters:
+  default: none
+  enable:
+    - errcheck
+    - govet
+    - staticcheck
+    - unused
+    - errorlint
+
+formatters:
+  enable:
+    - gofmt

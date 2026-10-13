@@ -32,6 +32,7 @@ var (
 	ErrNotFound    = APIError{Status: http.StatusNotFound, Code: "NOT_FOUND", Message: "resource not found"}
 	ErrValidation  = APIError{Status: http.StatusBadRequest, Code: "VALIDATION_FAILED", Message: "validation failed"}
 	ErrInternal    = APIError{Status: http.StatusInternalServerError, Code: "INTERNAL_ERROR", Message: "internal server error"}
+	ErrUnavailable = APIError{Status: http.StatusServiceUnavailable, Code: "SERVICE_UNAVAILABLE", Message: "service unavailable"}
 )
 
 // Generic, field-agnostic codes used in the details of ErrValidation.

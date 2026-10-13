@@ -12,6 +12,7 @@ import (
 
 	"example.com/todo/internal/config"
 	"example.com/todo/internal/database"
+	"example.com/todo/internal/health"
 	"example.com/todo/internal/server"
 	"example.com/todo/internal/telemetry"
 	"example.com/todo/internal/todo"
@@ -80,13 +81,18 @@ func run(stdout slog.Handler) error {
 }
 
 func handlers(pool *pgxpool.Pool, log *slog.Logger) ([]server.Handler, error) {
+	// Initiating todo handler
 	todoRepo := todo.NewPostgresRepo(pool)
 	todoHandler, err := todo.NewHandler(todoRepo, log)
 	if err != nil {
 		return nil, err
 	}
 
+	// Initiating health handler
+	healthHandler := health.NewHandler(pool, log)
+
 	return []server.Handler{
 		todoHandler,
+		healthHandler,
 	}, nil
 }

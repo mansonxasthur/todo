@@ -14,7 +14,12 @@ func (s *Server) routes() http.Handler {
 	for _, h := range s.handlers {
 		h.RegisterRoutes(mux)
 	}
-	return otelhttp.NewHandler(s.logRequests(mux), "http.server")
+	return otelhttp.NewHandler(
+		s.logRequests(
+			s.recoverPanic(mux),
+		),
+		"http.server",
+	)
 }
 
 func (s *Server) home(w http.ResponseWriter, r *http.Request) {

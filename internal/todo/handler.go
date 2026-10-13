@@ -41,7 +41,7 @@ func (h *Handler) createTodo(w http.ResponseWriter, r *http.Request) {
 
 	body := r.Body
 
-	defer r.Body.Close()
+	defer server.CloseRequestBody(h.log, r)
 
 	err := json.NewDecoder(body).Decode(&todo)
 
@@ -128,7 +128,7 @@ func (h *Handler) updateTodo(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	defer r.Body.Close()
+	defer server.CloseRequestBody(h.log, r)
 
 	var req updateRequest
 

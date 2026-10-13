@@ -32,7 +32,9 @@ func TestMain(m *testing.M) {
 		pool.Close()
 	}
 	if ctr != nil {
-		ctr.Terminate(context.Background())
+		if err := ctr.Terminate(context.Background()); err != nil {
+			fmt.Printf("Error terminating postgres container: %v\n", err)
+		}
 	}
 	os.Exit(code)
 }

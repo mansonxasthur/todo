@@ -3,6 +3,7 @@ package server
 import (
 	"bytes"
 	"encoding/json"
+	"errors"
 	"log/slog"
 	"net/http"
 	"net/http/httptest"
@@ -85,7 +86,7 @@ func TestRecoverPanicPropagatesErrAbortHandler(t *testing.T) {
 		h.ServeHTTP(httptest.NewRecorder(), httptest.NewRequest(http.MethodGet, "/", nil))
 	}()
 
-	if got != http.ErrAbortHandler {
+	if err, ok := got.(error); !ok || !errors.Is(err, http.ErrAbortHandler) {
 		t.Errorf("recovered %v, want http.ErrAbortHandler to propagate", got)
 	}
 	if buf.Len() != 0 {
@@ -97,6 +98,7 @@ func TestRecoverPanicPassesThroughNormalResponses(t *testing.T) {
 	s, buf := recoverServer()
 	h := s.recoverPanic(http.HandlerFunc(func(w http.ResponseWriter, _ *http.Request) {
 		w.WriteHeader(http.StatusTeapot)
+		//nolint discard for testing
 		w.Write([]byte("short and stout"))
 	}))
 

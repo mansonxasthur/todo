@@ -3,6 +3,7 @@ package server
 import (
 	"bytes"
 	"encoding/json"
+	"fmt"
 	"net/http"
 )
 
@@ -29,5 +30,8 @@ func Failure(w http.ResponseWriter, e APIError) {
 func writeJSON(w http.ResponseWriter, body []byte, status int) {
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(status)
-	w.Write(body)
+	_, err := w.Write(body)
+	if err != nil {
+		fmt.Printf("error writing to body: %v\n", err)
+	}
 }

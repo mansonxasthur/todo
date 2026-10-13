@@ -27,7 +27,17 @@ func Migrate(url string) error {
 	if err != nil {
 		return fmt.Errorf("creating migrator: %w", err)
 	}
-	defer m.Close()
+	defer func() {
+		sourceErr, databaseErr := m.Close()
+
+		if sourceErr != nil {
+			fmt.Printf("source error: %v\n", sourceErr)
+		}
+
+		if databaseErr != nil {
+			fmt.Printf("database error: %v\n", databaseErr)
+		}
+	}()
 
 	if err := m.Up(); err != nil && !errors.Is(err, migrate.ErrNoChange) {
 		return fmt.Errorf("running migrations: %w", err)

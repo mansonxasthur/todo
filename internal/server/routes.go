@@ -23,7 +23,7 @@ func (s *Server) routes() http.Handler {
 }
 
 func (s *Server) home(w http.ResponseWriter, r *http.Request) {
-	w.Write([]byte("hello friend!"))
+	Success(w, "hello friend!", http.StatusOK)
 }
 
 type cat struct {

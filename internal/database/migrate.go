@@ -14,7 +14,7 @@ import (
 
 // Migrate applies all pending up-migrations. Already-applied versions are
 // tracked by golang-migrate in the schema_migrations table.
-func Migrate(url string) error {
+func Migrate(url string) (err error) {
 	src, err := iofs.New(migrations.FS, ".")
 	if err != nil {
 		return fmt.Errorf("loading migrations: %w", err)
@@ -29,14 +29,7 @@ func Migrate(url string) error {
 	}
 	defer func() {
 		sourceErr, databaseErr := m.Close()
-
-		if sourceErr != nil {
-			fmt.Printf("source error: %v\n", sourceErr)
-		}
-
-		if databaseErr != nil {
-			fmt.Printf("database error: %v\n", databaseErr)
-		}
+		err = errors.Join(err, sourceErr, databaseErr)
 	}()
 
 	if err := m.Up(); err != nil && !errors.Is(err, migrate.ErrNoChange) {

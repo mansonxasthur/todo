@@ -3,7 +3,6 @@ package server
 import (
 	"bytes"
 	"encoding/json"
-	"fmt"
 	"net/http"
 )
 
@@ -30,8 +29,7 @@ func Failure(w http.ResponseWriter, e APIError) {
 func writeJSON(w http.ResponseWriter, body []byte, status int) {
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(status)
-	_, err := w.Write(body)
-	if err != nil {
-		fmt.Printf("error writing to body: %v\n", err)
-	}
+	// Headers are already sent, and a failed write means the client went
+	// away, so there is nothing to recover or worth logging.
+	_, _ = w.Write(body)
 }

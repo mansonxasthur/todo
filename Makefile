@@ -1,4 +1,4 @@
-.PHONY: check test vet lint fmt-check up down logs migrate-create obs-up obs-down obs-logs
+.PHONY: check test vet lint fmt-check hooks up down logs migrate-create obs-up obs-down obs-logs
 
 .DEFAULT_GOAL := check
 
@@ -25,6 +25,10 @@ lint:
 # gofmt -l exits 0 even when it lists files, so fail on any output.
 fmt-check:
 	@test -z "$$(gofmt -l .)" || { echo "unformatted:"; gofmt -l .; exit 1; }
+
+# Run once per clone: git does not version .git/hooks, so point it at .githooks.
+hooks:
+	git config core.hooksPath .githooks
 
 # Dev stack with live reload (compose picks up docker-compose.override.yml).
 up:
